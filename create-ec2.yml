@@ -9,5 +9,5 @@
         key_name: my-key
         region: us-east-1
         instance_type: t2.micro
-        image_id: ami-0abcdef1234567890
+        image_id: ami-0d9462a653c34dab7
         wait: yes
