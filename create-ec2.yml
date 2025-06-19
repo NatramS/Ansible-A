@@ -6,7 +6,7 @@
     - name: Launch EC2 instance
       amazon.aws.ec2_instance:
         name: myInstance
-        key_name: my-key
+        key_name: devops1
         region: us-east-1
         instance_type: t3.micro
         image_id: ami-0c2b8ca1dad447f8a  # Amazon Linux 2 x86_64 HVM EBS - us-east-1
