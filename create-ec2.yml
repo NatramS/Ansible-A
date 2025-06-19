@@ -9,5 +9,5 @@
         key_name: my-key
         region: us-east-1
         instance_type: t3.micro
-        image_id: ami-07041441b708acbd6
+        image_id: ami-0c2b8ca1dad447f8a  # Amazon Linux 2 x86_64 HVM EBS - us-east-1
         wait: yes
