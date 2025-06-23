@@ -1,0 +1,66 @@
+---
+- name: Provision EC2 Instances
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  collections:
+    - amazon.aws
+
+  vars:
+    region: us-east-1
+    instance_type: t3.micro
+    image_id: ami-0c2b8ca1dad447f8a           # Amazon Linux 2
+    key_name: devops1                         # Pre-created KeyPair in AWS
+    vpc_subnet_id: subnet-08db8ab2d0a55fa2c   # Replace with your subnet
+    security_group: my-sg                     # Pre-created Security Group
+
+  tasks:
+    - name: Launch 2 EC2 instances
+      ec2_instance:
+        name: "ansible-ec2-demo"
+        key_name: "{{ key_name }}"
+        instance_type: "{{ instance_type }}"
+        image_id: "{{ image_id }}"
+        wait: yes
+        count: 2
+        region: "{{ region }}"
+        vpc_subnet_id: "{{ vpc_subnet_id }}"
+        security_group: "{{ security_group }}"
+        network:
+          assign_public_ip: true
+        tags:
+          Environment: AnsibleAAP
+      register: ec2_output
+
+    - name: Add new instances to group
+      add_host:
+        name: "{{ item.public_ip_address }}"
+        group: ec2_hosts
+      loop: "{{ ec2_output.instances }}"
+
+- name: Install Java on EC2 Instances
+  hosts: ec2_hosts
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Install latest Java 17 (Amazon Corretto)
+      ansible.builtin.package:
+        name: "{{ java_package }}"
+        state: latest
+      vars:
+        java_package: >-
+          {{
+            'openjdk-17-jdk'
+            if ansible_facts['os_family'] == 'Debian'
+            else 'java-17-amazon-corretto-devel'
+          }}
+
+    - name: Verify Java installation
+      ansible.builtin.command: java -version
+      register: java_output
+      changed_when: false
+
+    - name: Show Java version
+      ansible.builtin.debug:
+        var: java_output.stdout_lines
