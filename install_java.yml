@@ -1,6 +1,6 @@
 ---
 - name: Install latest Java on EC2 instance
-  hosts: java_target
+  hosts: all
   become: true
   gather_facts: true
 
