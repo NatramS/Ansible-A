@@ -1,0 +1,28 @@
+---
+- name: Install latest Java on EC2 instance
+  hosts: java_target
+  become: true
+  gather_facts: true
+
+  vars:
+    java_package: >-
+      {{
+        'openjdk-17-jdk'
+        if ansible_facts['os_family'] == 'Debian'
+        else 'java-17-amazon-corretto-devel'
+      }}
+
+  tasks:
+    - name: Install Java
+      ansible.builtin.package:
+        name: "{{ java_package }}"
+        state: latest
+
+    - name: Verify Java version
+      ansible.builtin.command: java -version
+      register: java_output
+      changed_when: false
+
+    - name: Show Java version output
+      ansible.builtin.debug:
+        var: java_output.stdout_lines
